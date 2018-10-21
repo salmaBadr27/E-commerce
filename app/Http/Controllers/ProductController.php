@@ -51,7 +51,7 @@ class ProductController extends Controller
                 return Redirect::to('/add-product');
         }
         public function all_product (){
-
+            
             $all_product = DB::table('product')
             ->join('categories','product.category_id','=','categories.category_id')
             ->join('brands','product.brand_id','=','brands.brand_id')
@@ -69,7 +69,7 @@ class ProductController extends Controller
                 ->update(['publication_status' => 0]);
                 Session::put('message','product unactivated');
                 return Redirect::to('/all-product');
-    //   echo $product_id;
+
                 }
       
                 //activate status of product
@@ -92,7 +92,10 @@ class ProductController extends Controller
                     }
                     public function edit_product ($product_id) {
       
-                        $single_product= DB::table('products')
+                        $single_product= DB::table('product')
+                        ->join('categories','product.category_id','=','categories.category_id')
+                        ->join('brands','product.brand_id','=','brands.brand_id')
+                        ->select('product.*','categories.category_name','brands.brand_name')
                         ->where('product_id',$product_id)
                         ->first();
                         $edited_product = view('admin.edit-product')
@@ -102,5 +105,42 @@ class ProductController extends Controller
                        
               
                         }
+                          public function update_product(Request $request,$product_id)
+    {
+         $data=array();
+         $data['product_name']=$request->product_name;
+         $data['category_id']=$request->category_id;
+         $data['brand_id']=$request->brand_id;
+         $data['product_short_description']=$request->product_short_description;
+         $data['product_long_description']=$request->product_long_description;
+         $data['product_price']=$request->product_price;
+         $data['product_size']=$request->product_size;
+         $data['product_color']=$request->product_color;
+        $image=$request->file('product_image');
+    if ($image) {
+       $image_name=str_random(20);
+       $ext=strtolower($image->getClientOriginalExtension());
+       $image_full_name=$image_name.'.'.$ext;
+       $upload_path='backend/img/products/';
+       $image_url=$upload_path.$image_full_name;
+       $success=$image->move($upload_path,$image_full_name);
+       if ($success) {
+         $data['product_image']=$image_url;
+            DB::table('product')
+            ->where('product_id',$product_id)
+            ->update($data);
+            Session::put('message','Product updated successfully!!');
+            return Redirect::to('/all-product');
+       }
+    }
+    DB::table('product')
+    ->where('product_id',$product_id)
+    ->update($data);
+    Session::put('message','Product updated successfully!!');
+        return Redirect::to('/all-product');
+    }
+
+                      
+
 
 }

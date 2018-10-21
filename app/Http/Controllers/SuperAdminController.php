@@ -13,7 +13,7 @@ class SuperAdminController extends Controller
 {
   public function logout() {
  
-    Session::flush();
+    Session::flush(); //destroy session of user {delete user name and id from session}
   // Session::put('admin_name',null);
   // Session::put('admin_id',null);
  
@@ -21,7 +21,7 @@ class SuperAdminController extends Controller
 
   }
   public function index() {
-    $this->AdminAuthCheck();
+    $this->AdminAuthCheck();  //befor return to dashboard view this function authenticate if user exist in session variable
     return view('admin.dashboard');
     
   
